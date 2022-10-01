@@ -1,26 +1,26 @@
-function [ret,x0,str,ts,xts]=seque2(t,x,u,flag);
-%SEQUE2	is the M-file description of the SIMULINK system named SEQUE2.
-%	SEQUE2 has a the following characteristics:
-%		0 continuous states
-%		0 discrete states
+function [ret,x0,str,ts,xts]=deriv(t,x,u,flag);
+%DERIV	is the M-file description of the SIMULINK system named DERIV.
+%	DERIV has a the following characteristics:
+%		1 continuous states
+%		9 discrete states
 %		0 outputs
 %		0 inputs
 %		does not have direct feedthrough
 %		1 sample times
 %
-%	The block-diagram can be displayed by typing: SEQUE2.
+%	The block-diagram can be displayed by typing: DERIV.
 %
-%	SYS=SEQUE2(T,X,U,FLAG) returns depending on FLAG certain
+%	SYS=DERIV(T,X,U,FLAG) returns depending on FLAG certain
 %	system values given time point, T, current state vector, X,
 %	and input vector, U.
 %	FLAG is used to indicate the type of output to be returned in SYS.
 %
-%	Setting FLAG=1 causes SEQUE2 to return state derivatives, FLAG=2
+%	Setting FLAG=1 causes DERIV to return state derivatives, FLAG=2
 %	discrete states, FLAG=3 system outputs and FLAG=4 next sample
 %	time. For more information and other options see SFUNC.
 %
-%	Calling SEQUE2 with a FLAG of zero:
-%	[SIZES]=SEQUE2([],[],[],0),  returns a vector, SIZES, which
+%	Calling DERIV with a FLAG of zero:
+%	[SIZES]=DERIV([],[],[],0),  returns a vector, SIZES, which
 %	contains the sizes of the state vector and other parameters.
 %		SIZES(1) number of states
 %		SIZES(2) number of discrete states
@@ -42,7 +42,7 @@ sys = mfilename;
 new_system(sys)
 simver(1.3)
 if (0 == (nargin + nargout))
-     set_param(sys,'Location',[0,46,1251,842])
+     set_param(sys,'Location',[0,46,1259,845])
      open_system(sys)
 end;
 set_param(sys,'algorithm',     'RK-45')
@@ -104,7 +104,84 @@ set_param([sys,'/','Scope'],...
 		'Hmax','14.000000',...
 		'Window',[59,11,960,805],...
 		'position',[285,460,315,490])
+
+add_block('built-in/Integrator',[sys,'/','Integrator'])
+set_param([sys,'/','Integrator'],...
+		'position',[290,530,310,550])
+
+add_block('built-in/Gain',[sys,'/','Gain'])
+set_param([sys,'/','Gain'],...
+		'Gain','5',...
+		'position',[350,532,375,558])
+
+add_block('built-in/Derivative',[sys,'/','Derivative'])
+set_param([sys,'/','Derivative'],...
+		'position',[365,615,395,635])
+
+
+%     Subsystem  ['Auto-Scale',13,'Graph'].
+
+new_system([sys,'/',['Auto-Scale',13,'Graph']])
+set_param([sys,'/',['Auto-Scale',13,'Graph']],'Location',[0,59,274,252])
+
+add_block('built-in/Inport',[sys,'/',['Auto-Scale',13,'Graph/x']])
+set_param([sys,'/',['Auto-Scale',13,'Graph/x']],...
+		'position',[65,55,85,75])
+
+add_block('built-in/S-Function',[sys,'/',['Auto-Scale',13,'Graph/S-function',13,'M-file which plots',13,'lines',13,'']])
+set_param([sys,'/',['Auto-Scale',13,'Graph/S-function',13,'M-file which plots',13,'lines',13,'']],...
+		'function name','sfunyst',...
+		'parameters','ax, color, npts, dt',...
+		'position',[130,55,180,75])
+add_line([sys,'/',['Auto-Scale',13,'Graph']],[90,65;125,65])
+set_param([sys,'/',['Auto-Scale',13,'Graph']],...
+		'Mask Display','plot(0,0,100,100,[83,76,63,52,42,38,28,16,11,84,11,11,11,90,90,11],[75,58,47,54,72,80,84,74,65,65,65,90,40,40,90,90])',...
+		'Mask Type','Storage scope.')
+set_param([sys,'/',['Auto-Scale',13,'Graph']],...
+		'Mask Dialogue','Storage scope using MATLAB graph window.\nEnter plotting ranges and line type.|Initial Time Range:|Initial y-min:|Initial y-max:|Storage pts.:|Line type (rgbw-.:xo):')
+set_param([sys,'/',['Auto-Scale',13,'Graph']],...
+		'Mask Translate','npts = @4; color = @5; ax = [0, @1, @2, @3]; dt=-1;')
+set_param([sys,'/',['Auto-Scale',13,'Graph']],...
+		'Mask Help','This block uses a MATLAB figure window to plot the input signal.  The graph limits are automatically scaled to the min and max values of the signal stored in the scope''s signal buffer.  Line type must be in quotes.  See the M-file sfunyst.m.')
+set_param([sys,'/',['Auto-Scale',13,'Graph']],...
+		'Mask Entries','5\/-10\/10\/200\/''y-/g--/c-./w:/m*/ro/b+''\/')
+
+
+%     Finished composite block ['Auto-Scale',13,'Graph'].
+
+set_param([sys,'/',['Auto-Scale',13,'Graph']],...
+		'position',[1140,490,1170,530])
+
+add_block('built-in/Abs',[sys,'/','Abs'])
+set_param([sys,'/','Abs'],...
+		'position',[480,613,510,637])
+
+add_block('built-in/Mux',[sys,'/','Mux'])
+set_param([sys,'/','Mux'],...
+		'inputs','3',...
+		'position',[880,493,910,527])
+
+add_block('built-in/Saturation',[sys,'/','Saturation'])
+set_param([sys,'/','Saturation'],...
+		'Lower Limit','0',...
+		'Upper Limit','5',...
+		'position',[605,613,635,637])
+
+add_block('built-in/Transport Delay',[sys,'/',['Transport',13,'Delay']])
+set_param([sys,'/',['Transport',13,'Delay']],...
+		'position',[695,610,735,640])
 add_line(sys,[195,475;280,475])
+add_line(sys,[230,475;225,540;285,540])
+add_line(sys,[250,475;250,500;875,500])
+add_line(sys,[915,510;1135,510])
+add_line(sys,[315,540;325,540;325,545;345,545])
+add_line(sys,[380,545;395,545;525,510;875,510])
+add_line(sys,[240,540;240,625;360,625])
+add_line(sys,[400,625;395,620])
+add_line(sys,[400,625;475,625])
+add_line(sys,[515,625;600,625])
+add_line(sys,[640,625;690,625])
+add_line(sys,[740,625;800,625;800,520;875,520])
 
 drawnow
 
